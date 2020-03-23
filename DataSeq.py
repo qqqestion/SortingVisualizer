@@ -86,3 +86,9 @@ class DataSequence:
     
     def __len__(self):
         return len(self.elements)
+    
+    def __getitem__(self, idx):
+        return self.elements[idx]
+    
+    def is_sorted(self):
+        return all(self.elements[i] <= self.elements[i + 1] for i in range(len(self) - 1))

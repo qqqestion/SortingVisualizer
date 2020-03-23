@@ -20,5 +20,6 @@ def quick_sort(ds, low, hig):
         quick_sort(ds, low, middle)
         quick_sort(ds, middle + 1, hig)
 
+
 def launch_quick_sort(ds):
     quick_sort(ds, 0, len(ds))
