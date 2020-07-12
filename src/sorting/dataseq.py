@@ -16,19 +16,6 @@ class DataSequence:
         self.elements = [randint(min_e, max_e) for _ in range(size)]
         self.current_state = 0
         self.comparison = 0
-
-    def get_surface_conf(self, surface):
-        swidth, sheight = surface.get_size()
-        width = swidth // len(self.elements)
-        # delimiter = round(width / 20)
-        delimiter = 1
-        width -= 1
-        # width -= delimiter * 2
-
-        x = 0
-        y = sheight // 10
-        hm = 3
-        return (x, y, width, delimiter, hm)
     
     def visualize_text(self, surface):
         font1 = pygame.font.SysFont('courier', 14)
