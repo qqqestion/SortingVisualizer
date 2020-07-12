@@ -86,5 +86,4 @@ def main():
 
 
 if __name__ == "__main__":
-    # test_sort(merge_sort, 500)
     main()
