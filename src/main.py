@@ -1,32 +1,24 @@
 from random import randint
 import pygame
 import time
-from conf import screen_width, screen_height
-from DataSeq import DataSequence
-from QuickSort import launch_quick_sort
-from MergeSort import launch_merge_sort
-from BubbleSort import launch_bubble_sort
-from SelectionSort import launch_selection_sort
-from InsertionSort import launch_insertion_sort
-from ShellSort import launch_shell_sort
+import argparse
+
+from sorting import (DataSequence, 
+                     launch_quick_sort, 
+                     launch_merge_sort, 
+                     launch_bubble_sort, 
+                     launch_selection_sort, 
+                     launch_insertion_sort, 
+                     launch_shell_sort)
 
 
-pygame.init()
-pygame.display.init()
-screen = pygame.display.set_mode((screen_width, screen_height))
-pygame.display.set_caption('Algorithms Visualization')
-pygame.display.update()
-
-
-def test_sort(sort, num_test):
-    for i in range(50):
-        elements = [randint(1, 1000) for _ in range(num_test)]
-        sort(elements, 0, len(elements))
-        if not all(elements[i] <= elements[i + 1] 
-                   for i in range(len(elements) - 1)):
-            print('Not Okay')
-            exit()
-    print('Okay')
+def screen_init(width, height):
+    pygame.init()
+    pygame.display.init()
+    screen = pygame.display.set_mode((width, height))
+    pygame.display.set_caption('Algorithms Visualization')
+    pygame.display.update()
+    return screen
 
 
 def calculate_num(a):
@@ -37,32 +29,51 @@ def calculate_num(a):
         res[num] += 1
     return res
 
+def get_surface_conf(surface, elements):
+    swidth, sheight = surface.get_size()
+    width = swidth // elements
+    # delimiter = round(width / 20)
+    delimiter = 1
+    width -= 1
+    # width -= delimiter * 2
+
+    x = 0
+    y = sheight // 10
+    hm = 3
+    return (x, y, width, delimiter, hm)
+
+def parse_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--width', type=int, default=800, help='Screen width')
+    parser.add_argument('--height', type=int, default=600, help='Screen height')
+    parser.add_argument('--sort', 
+                        type=str, 
+                        choices=['quick_sort', 
+                                 'merge_sort', 
+                                 'bubble_sort', 
+                                 'selection_sort', 
+                                 'insertion_sort', 
+                                 'shell_sort'], 
+                        default='quick_sort',
+                        help='Type of sorting')
+
+    args = parser.parse_args()
+    width = args.width
+    height = args.height
+    sort = 'launch_{}'.format(args.sort)
+    return width, height, sort
+
 
 def main():
-    surface = pygame.Surface((screen_width, screen_height))
+    width, height, sort = parse_args()
+
+    screen = screen_init(width, height)
+
     ds = DataSequence(100)
-    # print(ds.elements)
-    nums = calculate_num(ds.elements)
-    elems = ds.elements.copy()
-    # TODO: write something to choose sorts
-    # launch_merge_sort(ds)
-    # launch_quick_sort(ds)
-    # launch_bubble_sort(ds)
-    # launch_selection_sort(ds)
-    # launch_insertion_sort(ds)
-    launch_shell_sort(ds)
-    sorted_nums = calculate_num(ds.elements)
-    if nums != sorted_nums:
-        print('SOS')
-        print('Origin:', nums)
-        print('Sorted:', sorted_nums)
-        exit()
-    if not all(ds[i] <= ds[i + 1] for i in range(len(ds) - 1)):
-        print('SOS')
-        print('Origin:', elems)
-        print('Sorted:', ds.elements)
-        exit()
-    # print(ds.elements)
+    x, y, width, delimiter, hm = get_surface_conf(screen, 
+                                                  len(ds))
+    exec(f'{sort}(ds)')
+
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -70,10 +81,8 @@ def main():
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     exit()
-        ds.visualize(surface)
-        screen.blit(surface, (0, 0))
+        ds.visualize(screen, x, y, width, delimiter, hm)
         pygame.display.update()
-        # time.sleep(.3)
 
 
 if __name__ == "__main__":

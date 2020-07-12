@@ -1,6 +1,7 @@
 from random import randint
-from conf import white, red, green, blue, bg_color
 import pygame
+
+from .colors import white, red, green, blue, bg_color
 
 
 min_e = 1
@@ -18,30 +19,29 @@ class DataSequence:
 
     def get_surface_conf(self, surface):
         swidth, sheight = surface.get_size()
-        swidth -= 10
         width = swidth // len(self.elements)
-        delimiter = round(width / 20)
-        width -= delimiter * 2
+        # delimiter = round(width / 20)
+        delimiter = 1
+        width -= 1
+        # width -= delimiter * 2
 
-        x = 5
+        x = 0
         y = sheight // 10
         hm = 3
         return (x, y, width, delimiter, hm)
     
     def visualize_text(self, surface):
         font1 = pygame.font.SysFont('courier', 14)
-        data = []
         comparison = self.state_list[self.current_state].get('comparison', 0)
-        data.append(f'Number of Comparison {comparison}')
-        for i, text in enumerate(data):
-            surface.blit(font1.render(text, True, ((128, 128, 255))), (5, 500))
+        text = f'Number of Comparison {comparison}'
+        surface.blit(font1.render(text, True, ((128, 128, 255))), (5, 500))
     
-    def visualize(self, surface):
-        objs = self.state_list[self.current_state].get('elements', [])
-        idx1 = self.state_list[self.current_state].get('idx1')
-        idx2 = self.state_list[self.current_state].get('idx2')
-        middle = self.state_list[self.current_state].get('middle')
-        x, y, width, delimiter, hm = self.get_surface_conf(surface)
+    def visualize(self, surface, x, y, width, delimiter, hm):
+        state = self.state_list[self.current_state]
+        objs = state.get('elements', [])
+        idx1 = state.get('idx1')
+        idx2 = state.get('idx2')
+        # x, y, width, delimiter, hm = self.get_surface_conf(surface)
         surface.fill(bg_color)
         for i in range(len(objs)):
             current_color = white
@@ -49,8 +49,6 @@ class DataSequence:
                 current_color = red
             elif i == idx2:
                 current_color = green
-            elif i == middle:
-                current_color = blue
             pygame.draw.rect(
                 surface,
                 current_color,
@@ -60,27 +58,22 @@ class DataSequence:
         self.visualize_text(surface)
         self.current_state = min(self.current_state + 1, len(self.state_list) - 1)
 
-    def save_state(self, idx1=None, idx2=None, middle=None):
+    def save_state(self, idx1=None, idx2=None):
         sort_state = {
             'elements': self.elements.copy(),
             'idx1': idx1,
             'idx2': idx2,
-            'middle': middle,
             'comparison': self.comparison
         }
         self.state_list.append(sort_state)
     
     def swap(self, idx1, idx2):
         self.comparison += 1
-        self.save_state(idx1, idx2)
-        tmp = self.elements[idx1]
-        self.elements[idx1] = self.elements[idx2]
-        self.elements[idx2] = tmp
+        self.elements[idx1], self.elements[idx2] = self.elements[idx2], self.elements[idx1]
         self.save_state(idx1, idx2)
     
     def set_value(self, idx1, value):
         self.comparison += 1
-        self.save_state(idx1)
         self.elements[idx1] = value
         self.save_state(idx1)
     
